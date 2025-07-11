@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Campus Tree Map</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+    }
+    #header {
+      background: #2c662d;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    #summary {
+      padding: 1rem;
+      background: #f4f4f4;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+    }
+    .summary-item {
+      font-size: 1rem;
+    }
+    #map {
+      height: 85vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <h1>Campus Tree Map</h1>
+  </div>
+  <div id="summary">
+    <div class="summary-item"><strong>Total Trees:</strong> <span id="tree-count">0</span></div>
+    <div class="summary-item"><strong>Total Carbon (kg):</strong> <span id="carbon-total">0</span></div>
+    <div class="summary-item"><strong>Average DBH (cm):</strong> <span id="dbh-avg">0</span></div>
+  </div>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([40.0242, -75.3152], 17);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 20
+    }).addTo(map);
+
+    fetch('trees.geojson')
+      .then(res => res.json())
+      .then(data => {
+        let totalCarbon = 0;
+        let totalDBH = 0;
+        let treeCount = data.features.length;
+
+        L.geoJSON(data, {
+          onEachFeature: function (feature, layer) {
+            const p = feature.properties;
+            const popupHTML = `
+              <strong>Tree Type:</strong> ${p.Type}<br>
+              <strong>DBH:</strong> ${p.DBH} cm<br>
+              <strong>Height:</strong> ${p.Height} m<br>
+              <strong>Biomass:</strong> ${p.Biomass} kg<br>
+              <strong>Carbon:</strong> ${p.Carbon} kg<br>
+              ${p.Image ? `<img src="${p.Image}" width="100" />` : ''}
+            `;
+            layer.bindPopup(popupHTML);
+            totalCarbon += parseFloat(p.Carbon);
+            totalDBH += parseFloat(p.DBH);
+          }
+        }).addTo(map);
+
+        document.getElementById('tree-count').textContent = treeCount;
+        document.getElementById('carbon-total').textContent = totalCarbon.toFixed(1);
+        document.getElementById('dbh-avg').textContent = (totalDBH / treeCount).toFixed(1);
+      });
+  </script>
+</body>
+</html>
+

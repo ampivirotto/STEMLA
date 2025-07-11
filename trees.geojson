@@ -1,0 +1,37 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "ID": "001",
+        "Type": "Red Maple",
+        "DBH": 32,
+        "Height": 15,
+        "Biomass": 120,
+        "Carbon": 60,
+        "Image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Acer_rubrum_2.jpg/320px-Acer_rubrum_2.jpg"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-75.314, 40.0246]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ID": "002",
+        "Type": "White Oak",
+        "DBH": 45,
+        "Height": 20,
+        "Biomass": 250,
+        "Carbon": 125,
+        "Image": ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-75.315, 40.0242]
+      }
+    }
+  ]
+}
