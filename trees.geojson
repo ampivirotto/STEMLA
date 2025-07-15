@@ -10,7 +10,14 @@
         "Height": 15,
         "Biomass": 120,
         "Carbon": 60,
-        "Image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Acer_rubrum_2.jpg/320px-Acer_rubrum_2.jpg"
+        "Image": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Acer_rubrum_2.jpg",
+        "DBH_timeseries": {
+          "2014": 28,
+          "2016": 30,
+          "2018": 32,
+          "2020": 33,
+          "2022": 34
+        }
       },
       "geometry": {
         "type": "Point",

@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Campus Tree Map</title>
+  <title>Bryn Mawr Tree Map</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="style.css" />
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -31,6 +30,10 @@
     #map {
       height: 85vh;
     }
+    .popup-chart {
+      width: 200px;
+      height: 150px;
+    }
   </style>
 </head>
 <body>
@@ -45,6 +48,7 @@
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     const map = L.map('map').setView([40.0242, -75.3152], 17);
 
@@ -62,17 +66,55 @@
         L.geoJSON(data, {
           onEachFeature: function (feature, layer) {
             const p = feature.properties;
-            const popupHTML = `
+            const timeseries = p.DBH_timeseries || {};
+            const years = Object.keys(timeseries).sort();
+            const values = years.map(y => timeseries[y]);
+            const latestYear = years[years.length - 1];
+            const latestDBH = timeseries[latestYear] || p.DBH;
+
+            let popupHTML = `
               <strong>Tree Type:</strong> ${p.Type}<br>
-              <strong>DBH:</strong> ${p.DBH} cm<br>
+              <strong>DBH:</strong> ${latestDBH} cm (${latestYear})<br>
               <strong>Height:</strong> ${p.Height} m<br>
               <strong>Biomass:</strong> ${p.Biomass} kg<br>
               <strong>Carbon:</strong> ${p.Carbon} kg<br>
-              ${p.Image ? `<img src="${p.Image}" width="100" />` : ''}
+              ${p.Image ? `<img src="${p.Image}" width="100" /><br>` : ''}
             `;
+
+            if (years.length > 1) {
+              const chartId = `chart-${p.ID}`;
+              popupHTML += `<canvas id="${chartId}" class="popup-chart"></canvas>`;
+              setTimeout(() => {
+                const ctx = document.getElementById(chartId);
+                if (ctx) {
+                  new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                      labels: years,
+                      datasets: [{
+                        label: 'DBH over time',
+                        data: values,
+                        borderColor: 'green',
+                        tension: 0.1,
+                        fill: false
+                      }]
+                    },
+                    options: {
+                      scales: {
+                        y: { beginAtZero: true }
+                      },
+                      plugins: {
+                        legend: { display: false }
+                      }
+                    }
+                  });
+                }
+              }, 500);
+            }
+
             layer.bindPopup(popupHTML);
             totalCarbon += parseFloat(p.Carbon);
-            totalDBH += parseFloat(p.DBH);
+            totalDBH += parseFloat(latestDBH);
           }
         }).addTo(map);
 
@@ -83,4 +125,3 @@
   </script>
 </body>
 </html>
-
