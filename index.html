@@ -38,7 +38,7 @@
 </head>
 <body>
   <div id="header">
-    <h1>Campus Tree Map</h1>
+    <h1>Bryn Mawr Tree Map</h1>
   </div>
   <div id="summary">
     <div class="summary-item"><strong>Total Trees:</strong> <span id="tree-count">0</span></div>
@@ -84,7 +84,8 @@
             if (years.length > 1) {
               const chartId = `chart-${p.ID}`;
               popupHTML += `<canvas id="${chartId}" class="popup-chart"></canvas>`;
-              setTimeout(() => {
+
+              layer.on('popupopen', () => {
                 const ctx = document.getElementById(chartId);
                 if (ctx) {
                   new Chart(ctx, {
@@ -109,8 +110,9 @@
                     }
                   });
                 }
-              }, 500);
+              });
             }
+
 
             layer.bindPopup(popupHTML);
             totalCarbon += parseFloat(p.Carbon);
