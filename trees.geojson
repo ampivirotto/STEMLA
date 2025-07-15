@@ -6,11 +6,10 @@
       "properties": {
         "ID": "001",
         "Type": "Red Maple",
-        "DBH": 32,
         "Height": 15,
         "Biomass": 120,
         "Carbon": 60,
-        "Image": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Acer_rubrum_2.jpg",
+        "Image": "img/exampleImage.jpg",
         "DBH_timeseries": {
           "2014": 28,
           "2016": 30,
@@ -29,11 +28,13 @@
       "properties": {
         "ID": "002",
         "Type": "White Oak",
-        "DBH": 45,
         "Height": 20,
         "Biomass": 250,
         "Carbon": 125,
         "Image": ""
+        "DBH_timeseries": {
+          "2022": 32
+        }
       },
       "geometry": {
         "type": "Point",

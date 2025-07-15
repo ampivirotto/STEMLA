@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Bryn Mawr Tree Map</title>
+  <title>BMC Tree Map</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -38,7 +38,7 @@
 </head>
 <body>
   <div id="header">
-    <h1>Bryn Mawr Tree Map</h1>
+    <h1>Bryn Mawr College Tree Map</h1>
   </div>
   <div id="summary">
     <div class="summary-item"><strong>Total Trees:</strong> <span id="tree-count">0</span></div>
@@ -69,8 +69,13 @@
             const timeseries = p.DBH_timeseries || {};
             const years = Object.keys(timeseries).sort();
             const values = years.map(y => timeseries[y]);
-            const latestYear = years[years.length - 1];
-            const latestDBH = timeseries[latestYear] || p.DBH;
+
+            let latestYear = "n/a";
+            let latestDBH = 0;
+            if (years.length > 0) {
+              latestYear = years[years.length - 1];
+              latestDBH = timeseries[latestYear];
+            }
 
             let popupHTML = `
               <strong>Tree Type:</strong> ${p.Type}<br>
@@ -112,7 +117,6 @@
                 }
               });
             }
-
 
             layer.bindPopup(popupHTML);
             totalCarbon += parseFloat(p.Carbon);
