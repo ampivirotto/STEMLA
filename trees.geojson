@@ -31,7 +31,7 @@
         "Height": 20,
         "Biomass": 250,
         "Carbon": 125,
-        "Image": ""
+        "Image": "",
         "DBH_timeseries": {
           "2022": 32
         }
