@@ -117,17 +117,19 @@
         }
 
         data.forEach(row => {
-          const imgURL = convertDriveLink((row["Image URL"] || "").trim());
+          const imgURL = convertDriveLink((row["ImageURL"] || "").trim());
           if (!imgURL) return;
 
-          const altText = (row["Alt Text"] || "Student submitted figure").trim();
+          const altText = (row["AltText"] || "Student submitted figure").trim();
           const caption = (row["Caption"] || "").trim();
+          const studentName = (row["StudentName"] || "Anonymous").trim();
 
           const card = document.createElement("div");
           card.className = "card";
           card.innerHTML = `
             <img src="${imgURL}" alt="${altText}" />
             <div class="caption">${caption || 'No caption provided.'}</div>
+            <div class="student-name">Submitted by: ${studentName}</div>
           `;
           gallery.appendChild(card);
         });
