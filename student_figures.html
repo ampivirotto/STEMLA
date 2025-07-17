@@ -116,6 +116,10 @@
           }
         }
 
+        console.log("Filtered rows:", data);
+        console.log("First row keys:", Object.keys(data[0] || {}));
+
+
         data.forEach(row => {
           const imgURL = convertDriveLink((row["ImageURL"] || "").trim());
           if (!imgURL) return;
@@ -132,6 +136,15 @@
             <div class="student-name">Submitted by: ${studentName}</div>
           `;
           gallery.appendChild(card);
+          console.log("Image URL:", imgURL);
+          console.log("Alt Text:", altText);
+          console.log("Caption:", caption);
+          console.log("Student Name:", studentName);
+          console.log("Parsed data:", results.data);
+          console.log("Row keys:", Object.keys(results.data[0]));
+          console.log("Original image link:", row["ImageURL"]);
+          console.log("Converted image link:", imgURL);
+
         });
       },
       error: (err) => {
