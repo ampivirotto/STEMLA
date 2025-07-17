@@ -72,7 +72,7 @@
     <h1>BMC Tree Map • Student Figures</h1>
     <nav>
       <a href="index.html">🌳 Tree Map</a> |
-      <a href="student-figures.html">📊 Student Figures</a>
+      <a href="student_figures.html">📊 Student Figures</a>
     </nav>
   </div>
 
@@ -87,7 +87,7 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
   <script>
     const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSmryp-9xwBZVQaeSePx2RgIkJlWoOPSEA-PPfbFvIE0LV46GOc5ucsFdNZtE0s4JKx7618mH3p2I9_/pub?output=csv";
-    const formUrl = "https://docs.google.com/forms/d/e/1-_GnOZ4LJQFCACpXKKirm1CMzHfvLrRGw7QyWa6b9PY/viewform";
+    const formUrl = "https://forms.gle/z1fqrryymsh2buAJ9";
 
     document.getElementById('submit-figure').addEventListener('click', () => {
       window.open(formUrl, "_blank");
@@ -97,7 +97,7 @@
       download: true,
       header: true,
       complete: function(results) {
-        const data = results.data.filter(row => row.ImageURL);
+        const data = results.data.filter(row => row["Image URL"]);
         const gallery = document.getElementById("figureGallery");
         gallery.innerHTML = "";
 
@@ -107,10 +107,21 @@
           return;
         }
 
+        function convertDriveLink(originalUrl) {
+          const match = originalUrl.match(/(?:id=|\/d\/)([a-zA-Z0-9_-]{25,})/);
+          if (match) {
+            return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+          } else {
+            return originalUrl; // fallback if it doesn't match
+          }
+        }
+
         data.forEach(row => {
-          const imgURL = row.ImageURL.trim();
-          const altText = row.AltText.trim() || 'Student submitted figure';
-          const caption = row.Caption.trim();
+          const imgURL = convertDriveLink((row["Image URL"] || "").trim());
+          if (!imgURL) return;
+
+          const altText = (row["Alt Text"] || "Student submitted figure").trim();
+          const caption = (row["Caption"] || "").trim();
 
           const card = document.createElement("div");
           card.className = "card";
@@ -127,5 +138,6 @@
       }
     });
   </script>
+
 </body>
 </html>
