@@ -114,7 +114,7 @@
         function convertDriveLink(originalUrl) {
           const match = originalUrl.match(/(?:id=|\/d\/)([a-zA-Z0-9_-]{25,})/);
           if (match) {
-            return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+            return `https://drive.google.com/thumbnail?authuser=0&sz=w800&id=${match[1]}`;
           } else {
             return originalUrl; // fallback if it doesn't match
           }
