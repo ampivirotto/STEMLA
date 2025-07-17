@@ -4,64 +4,128 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Student Figures Gallery</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="style.css" />
   <style>
     body {
-      font-family: sans-serif;
-      padding: 2rem;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    #header {
+      background: #2c662d;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    #header nav a {
+      color: white;
+      margin: 0 1rem;
+      text-decoration: none;
+    }
+    #submit-area {
+      text-align: center;
+      margin: 1rem;
+    }
+    #submit-figure {
+      background: #2c662d;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 5px;
     }
     .gallery {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 1rem;
+      padding: 1rem;
     }
     .card {
       border: 1px solid #ccc;
       border-radius: 10px;
-      padding: 1rem;
-      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+      padding: 0.5rem;
+      box-shadow: 1px 1px 4px rgba(0,0,0,0.1);
+      background: white;
     }
     .card img {
       width: 100%;
       height: auto;
-      border-radius: 8px;
+      border-radius: 5px;
     }
     .card .caption {
       margin-top: 0.5rem;
       font-size: 0.9rem;
       color: #333;
     }
+    .gallery-empty {
+      text-align: center;
+      color: #666;
+      font-style: italic;
+      margin-top: 2rem;
+    }
   </style>
 </head>
 <body>
-  <h1>Student Figures</h1>
-  <div class="gallery" id="figureGallery"></div>
+  <div id="header">
+    <h1>BMC Tree Map • Student Figures</h1>
+    <nav>
+      <a href="index.html">🌳 Tree Map</a> |
+      <a href="student-figures.html">📊 Student Figures</a>
+    </nav>
+  </div>
 
+  <div id="submit-area">
+    <button id="submit-figure">➕ Submit Your Figure</button>
+  </div>
+
+  <div class="gallery" id="figureGallery">
+    <div class="gallery-empty" id="galleryEmpty">Loading figures...</div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
   <script>
-    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSmryp-9xwBZVQaeSePx2RgIkJlWoOPSEA-PPfbFvIE0LV46GOc5ucsFdNZtE0s4JKx7618mH3p2I9_/pub?gid=2035213182&single=true&output=csv";
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSmryp-9xwBZVQaeSePx2RgIkJlWoOPSEA-PPfbFvIE0LV46GOc5ucsFdNZtE0s4JKx7618mH3p2I9_/pub?output=csv";
+    const formUrl = "https://docs.google.com/forms/d/e/1-_GnOZ4LJQFCACpXKKirm1CMzHfvLrRGw7QyWa6b9PY/viewform";
 
-    async function loadFigures() {
-      const res = await fetch(sheetURL);
-      const text = await res.text();
-      const rows = text.split("\n").slice(1); // Skip header
-      const gallery = document.getElementById("figureGallery");
+    document.getElementById('submit-figure').addEventListener('click', () => {
+      window.open(formUrl, "_blank");
+    });
 
-      rows.forEach(row => {
-        const [name, imgURL, altText, caption] = row.split(",").map(cell => cell.trim());
+    Papa.parse(csvUrl, {
+      download: true,
+      header: true,
+      complete: function(results) {
+        const data = results.data.filter(row => row.ImageURL);
+        const gallery = document.getElementById("figureGallery");
+        gallery.innerHTML = "";
 
-        if (imgURL) {
+        if (data.length === 0) {
+          document.getElementById("galleryEmpty").textContent = "No figures submitted yet. Be the first!";
+          gallery.appendChild(document.getElementById("galleryEmpty"));
+          return;
+        }
+
+        data.forEach(row => {
+          const imgURL = row.ImageURL.trim();
+          const altText = row.AltText.trim() || 'Student submitted figure';
+          const caption = row.Caption.trim();
+
           const card = document.createElement("div");
           card.className = "card";
           card.innerHTML = `
-            <img src="${imgURL}" alt="${altText || 'Student-submitted figure'}" />
+            <img src="${imgURL}" alt="${altText}" />
             <div class="caption">${caption || 'No caption provided.'}</div>
           `;
           gallery.appendChild(card);
-        }
-      });
-    }
-
-    loadFigures();
+        });
+      },
+      error: (err) => {
+        console.error("Error loading student figures CSV:", err);
+        document.getElementById("galleryEmpty").textContent = "Error loading figures.";
+      }
+    });
   </script>
 </body>
 </html>
