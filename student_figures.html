@@ -36,25 +36,25 @@
       cursor: pointer;
       border-radius: 5px;
     }
-    .gallery {
+    .gallery-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-      padding: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 20px;
     }
     .card {
-      border: 1px solid #ccc;
+      background: #fff;
       border-radius: 10px;
-      padding: 0.5rem;
-      box-shadow: 1px 1px 4px rgba(0,0,0,0.1);
-      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
+
     .card img {
       width: 100%;
       height: auto;
-      border-radius: 5px;
-      border: 2px solid red; /* temporary for debugging */
-      background: yellow;     /* temporary for debugging */
+      display: block;
     }
 
     .card .caption {
@@ -83,7 +83,7 @@
     <button id="submit-figure">➕ Submit Your Figure</button>
   </div>
 
-  <div class="gallery" id="figureGallery">
+  <div class="gallery-grid" id="figureGallery">
     <div class="gallery-empty" id="galleryEmpty">Loading figures...</div>
   </div>
 
