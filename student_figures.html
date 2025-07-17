@@ -97,9 +97,10 @@
       download: true,
       header: true,
       complete: function(results) {
-        const data = results.data.filter(row => row["Image URL"]);
+        const data = results.data.filter(row => row["ImageURL"]);
         const gallery = document.getElementById("figureGallery");
         gallery.innerHTML = "";
+        
 
         if (data.length === 0) {
           document.getElementById("galleryEmpty").textContent = "No figures submitted yet. Be the first!";
