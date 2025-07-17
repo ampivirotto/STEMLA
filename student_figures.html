@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Figures Gallery</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+    }
+    .card img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+    .card .caption {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Student Figures</h1>
+  <div class="gallery" id="figureGallery"></div>
+
+  <script>
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSmryp-9xwBZVQaeSePx2RgIkJlWoOPSEA-PPfbFvIE0LV46GOc5ucsFdNZtE0s4JKx7618mH3p2I9_/pub?gid=2035213182&single=true&output=csv";
+
+    async function loadFigures() {
+      const res = await fetch(sheetURL);
+      const text = await res.text();
+      const rows = text.split("\n").slice(1); // Skip header
+      const gallery = document.getElementById("figureGallery");
+
+      rows.forEach(row => {
+        const [name, imgURL, altText, caption] = row.split(",").map(cell => cell.trim());
+
+        if (imgURL) {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <img src="${imgURL}" alt="${altText || 'Student-submitted figure'}" />
+            <div class="caption">${caption || 'No caption provided.'}</div>
+          `;
+          gallery.appendChild(card);
+        }
+      });
+    }
+
+    loadFigures();
+  </script>
+</body>
+</html>
