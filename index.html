@@ -140,9 +140,9 @@
               <strong>Tree Type:</strong> ${p.Type || 'Unknown'}<br>
               <strong>DBH:</strong> ${latestDBH} cm (${latestYear})<br>
               <strong>Height:</strong> ${p.Height || 'N/A'} m<br>
-              <strong>Biomass:</strong> ${p.Biomass_2025 || 'N/A'} kg<br>
-              <strong>Carbon Mass:</strong> ${p.Carbon_2025 || 'N/A'} kg<br>
-              <strong>CO₂ Mass:</strong> ${p.CO2_2025 || 'N/A'} kg<br>
+              <strong>Biomass:</strong> ${p.Biomass || 'N/A'} kg<br>
+              <strong>Carbon Mass:</strong> ${p.Carbon || 'N/A'} kg<br>
+              <strong>CO₂ Mass:</strong> ${p.CO2 || 'N/A'} kg<br>
               <strong>Notes:</strong> ${p.Notes || 'N/A'}<br>
               ${p.Image ? `<img src="${p.Image}" width="100" /><br>` : ''}
             `;
@@ -175,8 +175,8 @@
             }
 
             layer.bindPopup(popupHTML);
-            totalCarbon += parseFloat(p.Carbon_2025) || 0;
-            totalCO2 += parseFloat(p.CO2_2025) || 0;
+            totalCarbon += parseFloat(p.Carbon) || 0;
+            totalCO2 += parseFloat(p.CO2) || 0;
             totalDBH += parseFloat(latestDBH) || 0;
           }
         }).addTo(map);
