@@ -59,7 +59,7 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const map = L.map('map').setView([40.0242, -75.3152], 17);
+    const map = L.map('map').setView([40.02750580935416, -75.31178831965455], 17);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 20
@@ -116,6 +116,7 @@
         const geojson = { type: 'FeatureCollection', features };
 
         let totalCarbon = 0;
+        let totalCO2 = 0;
         let totalDBH = 0;
         let treeCount = features.length;
 
@@ -134,11 +135,13 @@
             }
 
             let popupHTML = `
+              <strong>Tree ID:</strong> ${p.ID || 'Unknown'}<br>
               <strong>Tree Type:</strong> ${p.Type || 'Unknown'}<br>
               <strong>DBH:</strong> ${latestDBH} cm (${latestYear})<br>
               <strong>Height:</strong> ${p.Height || 'N/A'} m<br>
-              <strong>Biomass:</strong> ${p.Biomass || 'N/A'} kg<br>
-              <strong>Carbon:</strong> ${p.Carbon || 'N/A'} kg<br>
+              <strong>Biomass:</strong> ${p.Biomass_2025 || 'N/A'} kg<br>
+              <strong>Carbon Mass:</strong> ${p.Carbon_2025 || 'N/A'} kg<br>
+              <strong>CO₂ Mass:</strong> ${p.CO2_2025 || 'N/A'} kg<br>
               <strong>Notes:</strong> ${p.Notes || 'N/A'}<br>
               ${p.Image ? `<img src="${p.Image}" width="100" /><br>` : ''}
             `;
@@ -171,7 +174,8 @@
             }
 
             layer.bindPopup(popupHTML);
-            totalCarbon += parseFloat(p.Carbon) || 0;
+            totalCarbon += parseFloat(p.Carbon_2025) || 0;
+            totalCO2 += parseFloat(p.CO2_2025) || 0;
             totalDBH += parseFloat(latestDBH) || 0;
           }
         }).addTo(map);
