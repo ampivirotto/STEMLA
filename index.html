@@ -65,74 +65,113 @@
       maxZoom: 20
     }).addTo(map);
 
-    fetch('trees.geojson')
-      .then(res => res.json())
-      .then(data => {
-        let totalCarbon = 0;
-        let totalDBH = 0;
-        let treeCount = data.features.length;
+    const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTijQHvGja9ADl9yRLYr9zsx9zLZnyO6PBoOoRMH7-O3tHu84jES_6y0Awr_iGe57DV2zMm3A8ceKc/pub?gid=0&single=true&output=csv'; 
 
-        L.geoJSON(data, {
-          onEachFeature: function (feature, layer) {
-          const p = feature.properties;
-          const timeseries = p.DBH_timeseries || {};
-          const years = Object.keys(timeseries).sort();
-          const values = years.map(y => timeseries[y]);
+    fetch(sheetURL)
+      .then(response => response.text())
+      .then(csvText => {
+        const rows = csvText.split('\n').map(row => row.split(','));
+        const headers = rows[0];
+        const features = [];
 
-          let latestYear = "n/a";
-          let latestDBH = 0;
-          if (years.length > 0) {
-            latestYear = years[years.length - 1];
-            latestDBH = timeseries[latestYear];
+        for (let i = 1; i < rows.length; i++) {
+          const row = rows[i];
+          if (!row[0]) continue; // skip empty
+
+          const props = {};
+          headers.forEach((h, idx) => props[h.trim()] = row[idx]?.trim());
+
+          const lat = parseFloat(props.Latitude);
+          const lng = parseFloat(props.Longitude);
+          if (isNaN(lat) || isNaN(lng)) continue;
+
+          // Time series from columns like DBH_2021, DBH_2022
+          const timeseries = {};
+          for (const key in props) {
+            if (key.startsWith('DBH_')) {
+              const year = key.replace('DBH_', '');
+              timeseries[year] = parseFloat(props[key]) || 0;
+            }
           }
 
-          let popupHTML = `
-            <strong>Tree Type:</strong> ${p.Type || 'Unknown'}<br>
-            <strong>DBH:</strong> ${latestDBH} cm (${latestYear})<br>
-            <strong>Height:</strong> ${p.Height || 'N/A'} m<br>
-            <strong>Biomass:</strong> ${p.Biomass || 'N/A'} kg<br>
-            <strong>Carbon:</strong> ${p.Carbon || 'N/A'} kg<br>
-            ${p.Image ? `<img src="${p.Image}" width="100" /><br>` : ''}
-          `;
-
-          // Only add chart if there are 2+ years
-          if (years.length > 1) {
-            const chartId = `chart-${p.ID}`;
-            popupHTML += `<canvas id="${chartId}" class="popup-chart"></canvas>`;
-
-            layer.on('popupopen', () => {
-              const ctx = document.getElementById(chartId);
-              if (ctx) {
-                new Chart(ctx, {
-                  type: 'line',
-                  data: {
-                    labels: years,
-                    datasets: [{
-                      label: 'DBH over time',
-                      data: values,
-                      borderColor: 'green',
-                      tension: 0.1,
-                      fill: false
-                    }]
-                  },
-                  options: {
-                    scales: {
-                      y: { beginAtZero: true }
-                    },
-                    plugins: {
-                      legend: { display: false }
-                    }
-                  }
-                });
-              }
-            });
-          }
-
-          layer.bindPopup(popupHTML);
-          totalCarbon += parseFloat(p.Carbon) || 0;
-          totalDBH += parseFloat(latestDBH) || 0;
+          features.push({
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lng, lat]
+            },
+            properties: {
+              ID: i,
+              Type: props.Type,
+              Height: props.Height,
+              Carbon: props.Carbon,
+              Biomass: props.Biomass,
+              Image: props.Image,
+              DBH_timeseries: timeseries
+            }
+          });
         }
 
+        const geojson = { type: 'FeatureCollection', features };
+
+        let totalCarbon = 0;
+        let totalDBH = 0;
+        let treeCount = features.length;
+
+        L.geoJSON(geojson, {
+          onEachFeature: function (feature, layer) {
+            const p = feature.properties;
+            const timeseries = p.DBH_timeseries || {};
+            const years = Object.keys(timeseries).sort();
+            const values = years.map(y => timeseries[y]);
+
+            let latestYear = "n/a";
+            let latestDBH = 0;
+            if (years.length > 0) {
+              latestYear = years[years.length - 1];
+              latestDBH = timeseries[latestYear];
+            }
+
+            let popupHTML = `
+              <strong>Tree Type:</strong> ${p.Type || 'Unknown'}<br>
+              <strong>DBH:</strong> ${latestDBH} cm (${latestYear})<br>
+              <strong>Height:</strong> ${p.Height || 'N/A'} m<br>
+              <strong>Biomass:</strong> ${p.Biomass || 'N/A'} kg<br>
+              <strong>Carbon:</strong> ${p.Carbon || 'N/A'} kg<br>
+              ${p.Image ? `<img src="${p.Image}" width="100" /><br>` : ''}
+            `;
+
+            if (years.length > 1) {
+              const chartId = `chart-${p.ID}`;
+              popupHTML += `<canvas id="${chartId}" class="popup-chart"></canvas>`;
+              layer.on('popupopen', () => {
+                const ctx = document.getElementById(chartId);
+                if (ctx) {
+                  new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                      labels: years,
+                      datasets: [{
+                        label: 'DBH over time',
+                        data: values,
+                        borderColor: 'green',
+                        tension: 0.1,
+                        fill: false
+                      }]
+                    },
+                    options: {
+                      scales: { y: { beginAtZero: true } },
+                      plugins: { legend: { display: false } }
+                    }
+                  });
+                }
+              });
+            }
+
+            layer.bindPopup(popupHTML);
+            totalCarbon += parseFloat(p.Carbon) || 0;
+            totalDBH += parseFloat(latestDBH) || 0;
+          }
         }).addTo(map);
 
         document.getElementById('tree-count').textContent = treeCount;
@@ -140,5 +179,6 @@
         document.getElementById('dbh-avg').textContent = (totalDBH / treeCount).toFixed(1);
       });
   </script>
+
 </body>
 </html>
