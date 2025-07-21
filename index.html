@@ -107,6 +107,7 @@
               Carbon: props.Carbon,
               Biomass: props.Biomass,
               Image: props.Image,
+              Notes: props.Notes,
               DBH_timeseries: timeseries
             }
           });
@@ -138,6 +139,7 @@
               <strong>Height:</strong> ${p.Height || 'N/A'} m<br>
               <strong>Biomass:</strong> ${p.Biomass || 'N/A'} kg<br>
               <strong>Carbon:</strong> ${p.Carbon || 'N/A'} kg<br>
+              <strong>Notes:</strong> ${p.Notes || 'N/A'}<br>
               ${p.Image ? `<img src="${p.Image}" width="100" /><br>` : ''}
             `;
 
